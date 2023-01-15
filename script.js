@@ -96,7 +96,7 @@ function runOperation() {
 
 // returns the number of digits after the decimal point (9 max)
 function dynamicRounding() {
-  let available = previousNumber.toString().length - 9;
+  let available = Math.abs(previousNumber.toString().length - 9);
   return available;
 }
 
@@ -109,8 +109,13 @@ function runFunction() {
     clear();
 
   // removes the last character from number and updates screen
-  } else {
+  } else if (this.dataset.value === "delete") {
     number = number.slice(0, -1);
+    display();
+
+  // inverts sign of current number (and result)
+  } else if (this.dataset.value === "invert") {
+    number = -number;
     display();
   }
 }
