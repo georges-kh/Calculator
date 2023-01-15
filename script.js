@@ -117,6 +117,11 @@ function runFunction() {
   } else if (this.dataset.value === "invert") {
     number = -number;
     display();
+
+  // returns current number as a percentage
+  } else {
+    number = number/100;
+    display();
   }
 }
 
