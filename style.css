@@ -1,0 +1,10 @@
+#display {
+  width: 50px;
+  height: 30px;
+  padding: 10px;
+  border: 1px solid red;
+}
+
+button {
+  padding: 5px 8px;
+}
