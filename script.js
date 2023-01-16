@@ -47,12 +47,12 @@ function display() {
 }
 
 
-// disables the decimal button if already used
-function decimalCheck() {
-  if (number.includes(".")) {
-    decimal.setAttribute("data-value", "");
+// makes sure only one decimal point is in number
+function decimalCheck(e) {
+  if (e.srcElement.dataset.value === "." && number.includes(".")) {
+    return;
   } else {
-    decimal.setAttribute("data-value", ".");
+    number += e.srcElement.dataset.value;
   }
 }
 
@@ -60,12 +60,7 @@ function decimalCheck() {
 // hands off the current and previous values of an operation as well as the operator
 function runOperation() {
 
-  if (operator === "=") {
-
-    // reset the operator
-    operator = "+";
-
-  } else {
+  if (operator !== "=") {
 
     // save the number
     currentNumber = number;
@@ -87,10 +82,10 @@ function runOperation() {
 
     // updates screen
     screen.textContent = roundedResult;
+  }
 
-    // grabs the operator for next calculation
-    operator = this.dataset.value;
-  } 
+  // grabs the operator for next calculation
+  operator = this.dataset.value; 
 }
 
 
@@ -115,13 +110,40 @@ function runFunction() {
 
   // inverts sign of current number (and result)
   } else if (this.dataset.value === "invert") {
-    number = -number;
-    display();
 
-  // returns current number as a percentage
+    // if an operation has already taken place
+    if (operator === "=") {
+
+      //  invert the value for next operation
+      previousNumber = -previousNumber
+
+      // update number and display it
+      number = previousNumber;
+      display();
+
+      // resets number
+      number = "";
+
+    // if first numbers are being entered
+    } else {
+
+      // invert the value of number and display it
+      number = -number;
+      display();
+    }
+
+    // returns current number as a percentage
   } else {
-    number = number/100;
-    display();
+    if (operator === "=") {
+      previousNumber = previousNumber/100
+      number = previousNumber;
+      display();
+      number = "";
+    } else {
+      number = number/100
+      display();
+    }
+    
   }
 }
 
@@ -138,22 +160,15 @@ function clear() {
 }
 
 
-// DOM object for the "." button
-const decimal = document.getElementById("dot");
-// sets the data-value to .
-decimal.setAttribute("data-value", ".");
-
 // DOM object for the screen div
 const screen = document.getElementById("display");
 
 // DOM object for all digit buttons
 const digits = document.querySelectorAll(".digit-button");
 // assigns event listeners for a click
-digits.forEach(digit => digit.addEventListener("click", () => {
-  //updates number with each digit button clicked
-  number += digit.dataset.value;
-  decimalCheck();
-  display();  
+digits.forEach(digit => digit.addEventListener("click", function(e) {
+  decimalCheck(e);
+  display();
 }));
 
 
@@ -166,3 +181,11 @@ operators.forEach(operator => operator.addEventListener("click", runOperation));
 const funcButtons = document.querySelectorAll(".function-button");
 // adds event listeners that call the runFunction buttons
 funcButtons.forEach(func => func.addEventListener("click", runFunction));
+
+window.addEventListener("keydown", function(e) {
+  //console.log(e.key)
+   if (Number.isInteger((+e.key)) || e.key === ".") {
+     number += e.key;
+     updateDisplay();
+   } //else if (e.key in ["+", "-", "*", "/"]) 
+});
