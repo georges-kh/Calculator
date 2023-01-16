@@ -31,7 +31,7 @@ let previousNumber = "0";
 let currentNumber = "";
 let result = "";
 let operator = "+";
-
+let input = "";
 
 // updates the calculated number
 function display() {
@@ -48,11 +48,11 @@ function display() {
 
 
 // makes sure only one decimal point is in number
-function decimalCheck(e) {
-  if (e.srcElement.dataset.value === "." && number.includes(".")) {
+function decimalCheck() {
+  if (input === "." && number.includes(".")) {
     return;
   } else {
-    number += e.srcElement.dataset.value;
+    number += input;
   }
 }
 
@@ -60,7 +60,7 @@ function decimalCheck(e) {
 // hands off the current and previous values of an operation as well as the operator
 function runOperation() {
 
-  if (operator !== "=") {
+  if (operator !== "Enter") {
 
     // save the number
     currentNumber = number;
@@ -85,7 +85,7 @@ function runOperation() {
   }
 
   // grabs the operator for next calculation
-  operator = this.dataset.value; 
+  operator = input; 
 }
 
 
@@ -100,19 +100,19 @@ function dynamicRounding() {
 function runFunction() {
 
   // calls clear function
-  if (this.dataset.value === "clear") {
+  if (input === "Escape") {
     clear();
 
   // removes the last character from number and updates screen
-  } else if (this.dataset.value === "delete") {
+  } else if (input === "Backspace") {
     number = number.slice(0, -1);
     display();
 
   // inverts sign of current number (and result)
-  } else if (this.dataset.value === "invert") {
+  } else if (input === "invert") {
 
     // if an operation has already taken place
-    if (operator === "=") {
+    if (operator === "Enter") {
 
       //  invert the value for next operation
       previousNumber = -previousNumber
@@ -133,8 +133,8 @@ function runFunction() {
     }
 
     // returns current number as a percentage
-  } else {
-    if (operator === "=") {
+  } else if (input === "%") {
+    if (operator === "Enter") {
       previousNumber = previousNumber/100
       number = previousNumber;
       display();
@@ -156,7 +156,6 @@ function clear() {
   currentNumber = "";
   result = "";
   operator = "+";
-  decimal.setAttribute("data-value", ".");
 }
 
 
@@ -167,7 +166,8 @@ const screen = document.getElementById("display");
 const digits = document.querySelectorAll(".digit-button");
 // assigns event listeners for a click
 digits.forEach(digit => digit.addEventListener("click", function(e) {
-  decimalCheck(e);
+  input = e.srcElement.dataset.value;
+  decimalCheck();
   display();
 }));
 
@@ -183,9 +183,16 @@ const funcButtons = document.querySelectorAll(".function-button");
 funcButtons.forEach(func => func.addEventListener("click", runFunction));
 
 window.addEventListener("keydown", function(e) {
-  //console.log(e.key)
-   if (Number.isInteger((+e.key)) || e.key === ".") {
-     number += e.key;
-     updateDisplay();
-   } //else if (e.key in ["+", "-", "*", "/"]) 
+  const keyPress = document.querySelector(`button[data-value="${e.key}"]`)
+  let keyClass = keyPress.getAttribute("class");
+  input = keyPress.dataset.value;
+  if (keyClass === "digit-button") {
+    decimalCheck();
+    display();
+  } else if (keyClass === "operator-button") {
+    runOperation();
+  } else {
+    runFunction();
+  }
+
 });
