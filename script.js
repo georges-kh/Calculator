@@ -53,6 +53,9 @@ function decimalCheck() {
     return;
   } else {
     number += input;
+    if (number.length > 16) {
+      number = number.slice(0, 16);
+    }
   }
 }
 
@@ -67,21 +70,19 @@ function runOperation() {
 
     // calculate (add first number to initial which is 0)
     result = operation(+previousNumber, +currentNumber, operator);
-
     // save the result
     previousNumber = result;
 
     // calls the dynamicRounding function and assigns it to roundingFactor 
     let roundingFactor = dynamicRounding();
 
-    // reset number
-    number = "";
 
     // rounds the result to 9 digits at most after the decimal point
     const roundedResult = Math.round(result*(10**roundingFactor))/(10**roundingFactor);
-
-    // updates screen
-    screen.textContent = roundedResult;
+    
+    number = roundedResult;
+    display();
+    number = "";
   }
 
   // grabs the operator for next calculation
@@ -89,9 +90,9 @@ function runOperation() {
 }
 
 
-// returns the number of digits after the decimal point (9 max)
+// returns the number of digits after the decimal point (14 max)
 function dynamicRounding() {
-  let available = Math.abs(previousNumber.toString().length - 9);
+  let available = Math.abs(previousNumber.toString().length - 14);
   return available;
 }
 
@@ -165,8 +166,8 @@ const screen = document.getElementById("display");
 // DOM object for all digit buttons
 const digits = document.querySelectorAll(".digit-button");
 // assigns event listeners for a click
-digits.forEach(digit => digit.addEventListener("click", function(e) {
-  input = e.srcElement.dataset.value;
+digits.forEach(digit => digit.addEventListener("click", function() {
+  input = this.dataset.value;
   decimalCheck();
   display();
 }));
@@ -175,12 +176,18 @@ digits.forEach(digit => digit.addEventListener("click", function(e) {
 // DOM object for all operator buttons
 const operators = document.querySelectorAll(".operator-button");
 // adds event listeners that call the runOperation function
-operators.forEach(operator => operator.addEventListener("click", runOperation));
+operators.forEach(operator => operator.addEventListener("click", function() {
+  input = this.dataset.value;
+  runOperation();
+}));
 
 // DOM object for all function buttons
 const funcButtons = document.querySelectorAll(".function-button");
 // adds event listeners that call the runFunction buttons
-funcButtons.forEach(func => func.addEventListener("click", runFunction));
+funcButtons.forEach(func => func.addEventListener("click", function() {
+  input = this.dataset.value;
+  runFunction();
+}));
 
 window.addEventListener("keydown", function(e) {
   const keyPress = document.querySelector(`button[data-value="${e.key}"]`)
